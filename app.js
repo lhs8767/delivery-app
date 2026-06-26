@@ -1,5 +1,7 @@
 const STORAGE_KEY = "bonie-waybill-editor-v2";
 const SAVED_KEY = "bonie-waybill-saved-list";
+const SUPABASE_CONFIG_KEY = "bonie-waybill-supabase-config";
+const SUPABASE_TABLE = "warehouse_waybills";
 
 const fieldNodes = [...document.querySelectorAll("[data-field]")];
 const printButton = document.getElementById("printButton");
@@ -7,6 +9,11 @@ const saveButton = document.getElementById("saveButton");
 const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
+const syncStatus = document.getElementById("syncStatus");
+const supabaseUrlInput = document.getElementById("supabaseUrl");
+const supabaseKeyInput = document.getElementById("supabaseKey");
+const connectSupabaseButton = document.getElementById("connectSupabaseButton");
+const disconnectSupabaseButton = document.getElementById("disconnectSupabaseButton");
 const printCountInputs = [...document.querySelectorAll('input[name="printCount"]')];
 const typeInputs = [...document.querySelectorAll('input[name="type"], input[name="typeMirror"]')];
 
@@ -51,7 +58,65 @@ function blankState(keepPrintCount = true) {
   };
 }
 
-function readSavedItems() {
+function getSupabaseConfig() {
+  try {
+    const config = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null");
+    if (!config?.url || !config?.key) return null;
+    return {
+      url: config.url.replace(/\/$/, ""),
+      key: config.key,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function setSupabaseConfig(config) {
+  localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+}
+
+function clearSupabaseConfig() {
+  localStorage.removeItem(SUPABASE_CONFIG_KEY);
+}
+
+async function supabaseRequest(path, options = {}) {
+  const config = getSupabaseConfig();
+  if (!config) throw new Error("Supabase 설정이 없습니다.");
+
+  const headers = {
+    apikey: config.key,
+    Authorization: `Bearer ${config.key}`,
+    "Content-Type": "application/json",
+    Prefer: "return=representation",
+    ...(options.headers || {}),
+  };
+
+  const response = await fetch(`${config.url}/rest/v1/${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `Supabase 오류 ${response.status}`);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+function normalizeSavedItem(row) {
+  if (row.data) {
+    return {
+      id: row.id,
+      savedAt: row.saved_at || row.savedAt || new Date().toISOString(),
+      data: row.data,
+    };
+  }
+  return row;
+}
+
+function readLocalSavedItems() {
   try {
     const items = JSON.parse(localStorage.getItem(SAVED_KEY) || "[]");
     return Array.isArray(items) ? items : [];
@@ -60,9 +125,45 @@ function readSavedItems() {
   }
 }
 
-function writeSavedItems(items) {
+function writeLocalSavedItems(items) {
   localStorage.setItem(SAVED_KEY, JSON.stringify(items));
-  renderSavedItems();
+}
+
+async function readSavedItems() {
+  if (!getSupabaseConfig()) return readLocalSavedItems();
+  const rows = await supabaseRequest(`${SUPABASE_TABLE}?select=id,saved_at,data&order=saved_at.desc`);
+  return rows.map(normalizeSavedItem);
+}
+
+async function createSavedItem(data) {
+  if (!getSupabaseConfig()) {
+    const items = readLocalSavedItems();
+    items.unshift({
+      id: Date.now(),
+      savedAt: new Date().toISOString(),
+      data,
+    });
+    writeLocalSavedItems(items);
+    return;
+  }
+
+  await supabaseRequest(SUPABASE_TABLE, {
+    method: "POST",
+    body: JSON.stringify({
+      data,
+      saved_at: new Date().toISOString(),
+    }),
+  });
+}
+
+async function deleteSavedItem(id) {
+  if (!getSupabaseConfig()) {
+    writeLocalSavedItems(readLocalSavedItems().filter((saved) => saved.id !== id));
+    return;
+  }
+  await supabaseRequest(`${SUPABASE_TABLE}?id=eq.${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 function setSaveStatus(text) {
@@ -74,15 +175,28 @@ function setSaveStatus(text) {
   }, 1800);
 }
 
+function setSyncStatus(text, isError = false) {
+  syncStatus.textContent = text;
+  syncStatus.style.color = isError ? "#9f2525" : "#66737b";
+}
+
 function getSavedTitle(data) {
   const customer = data.customer || "고객명 없음";
   const product = data.product || "제품명 없음";
   return `${customer} / ${product}`;
 }
 
-function renderSavedItems() {
-  const items = readSavedItems();
+async function renderSavedItems() {
   savedList.innerHTML = "";
+
+  let items = [];
+  try {
+    items = await readSavedItems();
+    setSyncStatus(getSupabaseConfig() ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
+  } catch (error) {
+    setSyncStatus(`공유 저장소 오류: ${error.message}`, true);
+    items = readLocalSavedItems();
+  }
 
   if (!items.length) {
     const empty = document.createElement("p");
@@ -118,9 +232,15 @@ function renderSavedItems() {
     remove.type = "button";
     remove.className = "delete-saved";
     remove.textContent = "삭제";
-    remove.addEventListener("click", () => {
-      writeSavedItems(readSavedItems().filter((saved) => saved.id !== item.id));
-      setSaveStatus("삭제했습니다");
+    remove.addEventListener("click", async () => {
+      try {
+        await deleteSavedItem(item.id);
+        await renderSavedItems();
+        setSaveStatus("삭제했습니다");
+      } catch (error) {
+        setSaveStatus("삭제 실패");
+        setSyncStatus(`삭제 오류: ${error.message}`, true);
+      }
     });
 
     row.append(text, load, remove);
@@ -161,6 +281,13 @@ function render() {
   });
 }
 
+function renderSupabaseConfig() {
+  const config = getSupabaseConfig();
+  supabaseUrlInput.value = config?.url || "";
+  supabaseKeyInput.value = config?.key || "";
+  setSyncStatus(config ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
+}
+
 fieldNodes.forEach((node) => {
   node.addEventListener("input", () => {
     state[node.dataset.field] = node.value;
@@ -191,20 +318,44 @@ printCountInputs.forEach((node) => {
   });
 });
 
-saveButton.addEventListener("click", () => {
+connectSupabaseButton.addEventListener("click", async () => {
+  const url = supabaseUrlInput.value.trim();
+  const key = supabaseKeyInput.value.trim();
+  if (!url || !key) {
+    setSyncStatus("Supabase URL과 anon key를 모두 입력해 주세요.", true);
+    return;
+  }
+
+  setSupabaseConfig({ url, key });
+  try {
+    await renderSavedItems();
+    setSaveStatus("공유 저장 연결 완료");
+  } catch (error) {
+    setSyncStatus(`연결 오류: ${error.message}`, true);
+  }
+});
+
+disconnectSupabaseButton.addEventListener("click", async () => {
+  clearSupabaseConfig();
+  renderSupabaseConfig();
+  await renderSavedItems();
+  setSaveStatus("공유 저장 연결 해제");
+});
+
+saveButton.addEventListener("click", async () => {
   saveState();
-  const items = readSavedItems();
-  items.unshift({
-    id: Date.now(),
-    savedAt: new Date().toISOString(),
-    data: { ...state },
-  });
-  writeSavedItems(items);
-  state = blankState();
-  saveState();
-  render();
-  setSaveStatus("저장하고 새 송장을 열었습니다");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  try {
+    await createSavedItem({ ...state });
+    await renderSavedItems();
+    state = blankState();
+    saveState();
+    render();
+    setSaveStatus("저장하고 새 송장을 열었습니다");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (error) {
+    setSaveStatus("저장 실패");
+    setSyncStatus(`저장 오류: ${error.message}`, true);
+  }
 });
 
 clearButton.addEventListener("click", () => {
@@ -220,6 +371,7 @@ printButton.addEventListener("click", () => {
 });
 
 loadState();
+renderSupabaseConfig();
 render();
 renderSavedItems();
 window.addEventListener("beforeprint", resizeAllTextareas);

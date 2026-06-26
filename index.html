@@ -119,6 +119,22 @@
         <h2>저장된 입고송장</h2>
         <span id="saveStatus" aria-live="polite"></span>
       </div>
+      <details class="sync-settings">
+        <summary>공유 저장 설정</summary>
+        <div class="sync-grid">
+          <label>
+            Supabase URL
+            <input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co">
+          </label>
+          <label>
+            Supabase anon key
+            <input id="supabaseKey" type="password" placeholder="anon public key">
+          </label>
+          <button id="connectSupabaseButton" type="button">연결 저장</button>
+          <button id="disconnectSupabaseButton" type="button">연결 해제</button>
+        </div>
+        <p id="syncStatus" class="sync-status">설정 전에는 이 기기에만 저장됩니다.</p>
+      </details>
       <div id="savedList" class="saved-list"></div>
     </section>
   </main>
