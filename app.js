@@ -3,7 +3,7 @@ const SAVED_KEY = "bonie-waybill-saved-list";
 const SUPABASE_CONFIG_KEY = "bonie-waybill-supabase-config";
 const SUPABASE_TABLE = "warehouse_waybills";
 
-const fieldNodes = [...document.querySelectorAll("[data-field]")];
+const fieldNodes = [...document.querySelectorAll("[data-slip-field]")];
 const printButton = document.getElementById("printButton");
 const saveButton = document.getElementById("saveButton");
 const clearButton = document.getElementById("clearButton");
@@ -20,20 +20,47 @@ const typeInputs = [...document.querySelectorAll('input[name="type"], input[name
 let state = {
   printCount: "2",
   type: "교환",
-  driver: "",
-  receivedDate: "",
-  customer: "",
-  phone: "",
-  address: "",
-  product: "",
-  symptom: "",
-  opinion: "",
+  slip1: blankSlip(),
+  slip2: blankSlip(),
 };
+
+function blankSlip() {
+  return {
+    driver: "",
+    receivedDate: "",
+    customer: "",
+    phone: "",
+    address: "",
+    product: "",
+    symptom: "",
+    opinion: "",
+  };
+}
+
+function migrateOldState(data) {
+  if (data?.slip1 && data?.slip2) return data;
+  const slip = {
+    driver: data?.driver || "",
+    receivedDate: data?.receivedDate || "",
+    customer: data?.customer || "",
+    phone: data?.phone || "",
+    address: data?.address || "",
+    product: data?.product || "",
+    symptom: data?.symptom || "",
+    opinion: data?.opinion || "",
+  };
+  return {
+    printCount: data?.printCount || "2",
+    type: data?.type || "교환",
+    slip1: { ...blankSlip(), ...slip },
+    slip2: { ...blankSlip() },
+  };
+}
 
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    if (saved && typeof saved === "object") state = { ...state, ...saved };
+    if (saved && typeof saved === "object") state = { ...state, ...migrateOldState(saved) };
   } catch {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -47,14 +74,8 @@ function blankState(keepPrintCount = true) {
   return {
     printCount: keepPrintCount ? state.printCount : "2",
     type: "교환",
-    driver: "",
-    receivedDate: "",
-    customer: "",
-    phone: "",
-    address: "",
-    product: "",
-    symptom: "",
-    opinion: "",
+    slip1: blankSlip(),
+    slip2: blankSlip(),
   };
 }
 
@@ -110,10 +131,10 @@ function normalizeSavedItem(row) {
     return {
       id: row.id,
       savedAt: row.saved_at || row.savedAt || new Date().toISOString(),
-      data: row.data,
+      data: migrateOldState(row.data),
     };
   }
-  return row;
+  return { ...row, data: migrateOldState(row.data) };
 }
 
 function readLocalSavedItems() {
@@ -181,9 +202,10 @@ function setSyncStatus(text, isError = false) {
 }
 
 function getSavedTitle(data) {
-  const customer = data.customer || "고객명 없음";
-  const product = data.product || "제품명 없음";
-  return `${customer} / ${product}`;
+  const normalized = migrateOldState(data);
+  const first = normalized.slip1.customer || normalized.slip2.customer || "고객명 없음";
+  const product = normalized.slip1.product || normalized.slip2.product || "제품명 없음";
+  return `${first} / ${product}`;
 }
 
 async function renderSavedItems() {
@@ -214,14 +236,15 @@ async function renderSavedItems() {
     const title = document.createElement("strong");
     title.textContent = getSavedTitle(item.data);
     const meta = document.createElement("small");
-    meta.textContent = `${item.data.type || "교환"} · ${item.data.receivedDate || "날짜 없음"}`;
+    const date = item.data.slip1.receivedDate || item.data.slip2.receivedDate || "날짜 없음";
+    meta.textContent = `${item.data.type || "교환"} · ${date}`;
     text.append(title, meta);
 
     const load = document.createElement("button");
     load.type = "button";
     load.textContent = "불러오기";
     load.addEventListener("click", () => {
-      state = { ...blankState(false), ...item.data, printCount: state.printCount };
+      state = { ...blankState(false), ...migrateOldState(item.data), printCount: state.printCount };
       saveState();
       render();
       setSaveStatus("불러왔습니다");
@@ -260,7 +283,8 @@ function resizeAllTextareas() {
 
 function render() {
   fieldNodes.forEach((node) => {
-    node.value = state[node.dataset.field] || "";
+    const [slip, field] = node.dataset.slipField.split(".");
+    node.value = state[slip]?.[field] || "";
     resizeTextarea(node);
   });
 
@@ -290,13 +314,8 @@ function renderSupabaseConfig() {
 
 fieldNodes.forEach((node) => {
   node.addEventListener("input", () => {
-    state[node.dataset.field] = node.value;
-    fieldNodes
-      .filter((other) => other.dataset.field === node.dataset.field && other !== node)
-      .forEach((other) => {
-        other.value = node.value;
-        resizeTextarea(other);
-      });
+    const [slip, field] = node.dataset.slipField.split(".");
+    state[slip][field] = node.value;
     resizeTextarea(node);
     saveState();
   });
