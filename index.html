@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>창고입고 송장</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <h1>창고입고 송장 작성</h1>
+
+    <section class="paper" aria-label="송장 작성지">
+      <article class="slip" data-slip="1">
+        <div class="slip-head">
+          <div class="title">창고입고 송장</div>
+          <div class="checks">
+            <label><input type="radio" name="type" value="교환" checked><span class="check-box"></span><b>교환</b></label>
+            <label><input type="radio" name="type" value="AS"><span class="check-box"></span><b>AS</b></label>
+            <label><input type="radio" name="type" value="반품"><span class="check-box"></span><b>반품</b></label>
+            <label><input type="radio" name="type" value="오출고"><span class="check-box"></span><b>오출고</b></label>
+          </div>
+        </div>
+
+        <table class="invoice-table">
+          <tbody>
+            <tr>
+              <th>회수 기사</th>
+              <td><input data-field="driver" autocomplete="name"></td>
+              <th>입고 날짜</th>
+              <td><input data-field="receivedDate" type="date"></td>
+            </tr>
+            <tr>
+              <th>고객명</th>
+              <td><input data-field="customer"></td>
+              <th>고객 연락처</th>
+              <td><input data-field="phone" inputmode="tel"></td>
+            </tr>
+            <tr>
+              <th>고객 주소</th>
+              <td colspan="3"><input data-field="address"></td>
+            </tr>
+            <tr>
+              <th>제품명</th>
+              <td colspan="3"><input data-field="product"></td>
+            </tr>
+            <tr class="memo-row">
+              <th>회수<br>증상</th>
+              <td colspan="3"><textarea data-field="symptom"></textarea></td>
+            </tr>
+            <tr class="memo-row">
+              <th>기사님<br>의견</th>
+              <td colspan="3"><textarea data-field="opinion"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <div class="cut-line" data-cut-line><span>절취선</span></div>
+
+      <article class="slip" data-slip="2">
+        <div class="slip-head">
+          <div class="title">창고입고 송장</div>
+          <div class="checks">
+            <label><input type="radio" name="typeMirror" value="교환" checked><span class="check-box"></span><b>교환</b></label>
+            <label><input type="radio" name="typeMirror" value="AS"><span class="check-box"></span><b>AS</b></label>
+            <label><input type="radio" name="typeMirror" value="반품"><span class="check-box"></span><b>반품</b></label>
+            <label><input type="radio" name="typeMirror" value="오출고"><span class="check-box"></span><b>오출고</b></label>
+          </div>
+        </div>
+
+        <table class="invoice-table">
+          <tbody>
+            <tr>
+              <th>회수 기사</th>
+              <td><input data-field="driver" autocomplete="name"></td>
+              <th>입고 날짜</th>
+              <td><input data-field="receivedDate" type="date"></td>
+            </tr>
+            <tr>
+              <th>고객명</th>
+              <td><input data-field="customer"></td>
+              <th>고객 연락처</th>
+              <td><input data-field="phone" inputmode="tel"></td>
+            </tr>
+            <tr>
+              <th>고객 주소</th>
+              <td colspan="3"><input data-field="address"></td>
+            </tr>
+            <tr>
+              <th>제품명</th>
+              <td colspan="3"><input data-field="product"></td>
+            </tr>
+            <tr class="memo-row">
+              <th>회수<br>증상</th>
+              <td colspan="3"><textarea data-field="symptom"></textarea></td>
+            </tr>
+            <tr class="memo-row">
+              <th>기사님<br>의견</th>
+              <td colspan="3"><textarea data-field="opinion"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="bottom-tools">
+      <fieldset class="print-count" aria-label="A4 출력 수량">
+        <label><input type="radio" name="printCount" value="1"><span>1장 출력</span></label>
+        <label><input type="radio" name="printCount" value="2" checked><span>2장 출력</span></label>
+      </fieldset>
+      <button id="clearButton" type="button">삭제</button>
+      <button id="saveButton" type="button">저장</button>
+      <button id="printButton" type="button">인쇄</button>
+    </section>
+
+    <section class="saved-panel" aria-label="저장된 입고송장">
+      <div class="saved-head">
+        <h2>저장된 입고송장</h2>
+        <span id="saveStatus" aria-live="polite"></span>
+      </div>
+      <div id="savedList" class="saved-list"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
