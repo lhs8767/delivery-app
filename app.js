@@ -365,12 +365,12 @@ saveButton.addEventListener("click", async () => {
   saveState();
   try {
     await createSavedItem({ ...state });
-    await renderSavedItems();
     state = blankState();
     saveState();
     render();
     setSaveStatus("저장하고 새 송장을 열었습니다");
     window.scrollTo({ top: 0, behavior: "smooth" });
+    await renderSavedItems();
   } catch (error) {
     setSaveStatus("저장 실패");
     setSyncStatus(`저장 오류: ${error.message}`, true);
