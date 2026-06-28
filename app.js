@@ -11,6 +11,8 @@ const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
 const syncStatus = document.getElementById("syncStatus");
+const driverLookup = document.getElementById("driverLookup");
+const loadByDriverButton = document.getElementById("loadByDriverButton");
 const supabaseUrlInput = document.getElementById("supabaseUrl");
 const supabaseKeyInput = document.getElementById("supabaseKey");
 const connectSupabaseButton = document.getElementById("connectSupabaseButton");
@@ -205,23 +207,28 @@ function setSyncStatus(text, isError = false) {
 
 function getSavedTitle(data) {
   const normalized = migrateOldState(data);
+  const driver = getSavedDriver(normalized) || "기사명 없음";
   const firstCustomer = normalized.slip1.customer || normalized.slip2.customer || "고객명 없음";
   const firstProduct = normalized.slip1.product || normalized.slip2.product || "제품명 없음";
   const countText = normalized.printCount === "2" ? "2건" : "1건";
-  return `${firstCustomer} / ${firstProduct} (${countText})`;
+  return `${driver} - ${firstCustomer} / ${firstProduct} (${countText})`;
 }
 
-async function renderSavedItems() {
-  savedList.innerHTML = "";
-  let items = [];
+function getSavedDriver(data) {
+  const normalized = migrateOldState(data);
+  return normalized.slip1.driver || normalized.slip2.driver || "";
+}
 
-  try {
-    items = await readSavedItems();
-    setSyncStatus(getSupabaseConfig() ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
-  } catch (error) {
-    setSyncStatus(`공유 저장소 오류: ${error.message}`, true);
-    items = readLocalSavedItems();
-  }
+function loadSavedItem(item) {
+  state = { ...blankState(false), ...migrateOldState(item.data), printCount: state.printCount };
+  saveState();
+  render();
+  setSaveStatus("불러왔습니다");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function drawSavedItems(items) {
+  savedList.innerHTML = "";
 
   if (!items.length) {
     const empty = document.createElement("p");
@@ -248,11 +255,7 @@ async function renderSavedItems() {
     load.type = "button";
     load.textContent = "불러오기";
     load.addEventListener("click", () => {
-      state = { ...blankState(false), ...migrateOldState(item.data), printCount: state.printCount };
-      saveState();
-      render();
-      setSaveStatus("불러왔습니다");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      loadSavedItem(item);
     });
 
     const remove = document.createElement("button");
@@ -273,6 +276,19 @@ async function renderSavedItems() {
     row.append(text, load, remove);
     savedList.append(row);
   });
+}
+
+async function renderSavedItems() {
+  let items = [];
+  try {
+    items = await readSavedItems();
+    setSyncStatus(getSupabaseConfig() ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
+  } catch (error) {
+    setSyncStatus(`공유 저장소 오류: ${error.message}`, true);
+    items = readLocalSavedItems();
+  }
+
+  drawSavedItems(items);
 }
 
 function resizeTextarea(node) {
@@ -421,6 +437,27 @@ disconnectSupabaseButton.addEventListener("click", async () => {
   renderSupabaseConfig();
   await renderSavedItems();
   setSaveStatus("공유 저장 연결 해제");
+});
+
+loadByDriverButton.addEventListener("click", async () => {
+  const name = driverLookup.value.trim();
+  if (!name) {
+    setSaveStatus("기사님 이름을 입력해 주세요");
+    return;
+  }
+
+  try {
+    const items = await readSavedItems();
+    const found = items.find((item) => getSavedDriver(item.data).trim() === name);
+    if (!found) {
+      setSaveStatus(`${name} 기사님 저장 내역이 없습니다`);
+      return;
+    }
+    loadSavedItem(found);
+  } catch (error) {
+    setSaveStatus("불러오기 실패");
+    setSyncStatus(`불러오기 오류: ${error.message}`, true);
+  }
 });
 
 saveButton.addEventListener("click", async () => {
