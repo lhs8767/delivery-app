@@ -1,6 +1,7 @@
 const STORAGE_KEY = "bonie-return-waybill-draft-v3";
 const SAVED_KEY = "bonie-return-waybill-saved-list-v3";
 const SUPABASE_CONFIG_KEY = "bonie-waybill-supabase-config";
+const DEFAULT_DRIVER_KEY = "bonie-return-waybill-default-driver";
 const SUPABASE_TABLE = "warehouse_waybills";
 
 const fieldNodes = [...document.querySelectorAll("[data-slip-field]")];
@@ -19,7 +20,7 @@ const typeInputs = [...document.querySelectorAll("[data-slip-type]")];
 function blankSlip() {
   return {
     type: "교환",
-    driver: "",
+    driver: getDefaultDriver(),
     receivedDate: "",
     customer: "",
     phone: "",
@@ -28,6 +29,14 @@ function blankSlip() {
     symptom: "",
     opinion: "",
   };
+}
+
+function getDefaultDriver() {
+  return localStorage.getItem(DEFAULT_DRIVER_KEY) || "";
+}
+
+function setDefaultDriver(name) {
+  localStorage.setItem(DEFAULT_DRIVER_KEY, name);
 }
 
 let state = {
@@ -275,6 +284,36 @@ function resizeAllTextareas() {
   document.querySelectorAll("textarea").forEach(resizeTextarea);
 }
 
+function syncEmptyDriverFields(driverName) {
+  ["slip1", "slip2"].forEach((slip) => {
+    if (!state[slip].driver) state[slip].driver = driverName;
+  });
+}
+
+function handleDriverDefault(node) {
+  const [slip, field] = node.dataset.slipField.split(".");
+  if (field !== "driver") return;
+
+  const driverName = node.value.trim();
+  if (!driverName) return;
+
+  const savedDriver = getDefaultDriver();
+  if (savedDriver === driverName) return;
+
+  const message = savedDriver
+    ? `기사님 이름을 "${driverName}"(으)로 수정 저장할까요?\n저장 후에도 다시 수정 가능합니다.`
+    : `기사님 이름을 "${driverName}"(으)로 기본 저장할까요?\n다음 송장부터 자동으로 들어가며, 나중에 수정 가능합니다.`;
+
+  if (!window.confirm(message)) return;
+
+  setDefaultDriver(driverName);
+  syncEmptyDriverFields(driverName);
+  state[slip].driver = driverName;
+  saveState();
+  render();
+  setSaveStatus("기사님 이름을 기본 저장했습니다");
+}
+
 function formatDate(value) {
   if (!value) return "";
   const [year, month, day] = value.split("-");
@@ -336,6 +375,10 @@ fieldNodes.forEach((node) => {
     resizeTextarea(node);
     renderPrintSheet();
     saveState();
+  });
+
+  node.addEventListener("blur", () => {
+    handleDriverDefault(node);
   });
 });
 
