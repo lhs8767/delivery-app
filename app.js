@@ -6,7 +6,6 @@ const SUPABASE_TABLE = "warehouse_waybills";
 const fieldNodes = [...document.querySelectorAll("[data-slip-field]")];
 const printButton = document.getElementById("printButton");
 const saveButton = document.getElementById("saveButton");
-const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
 const syncStatus = document.getElementById("syncStatus");
@@ -394,12 +393,6 @@ saveButton.addEventListener("click", async () => {
     setSaveStatus("저장 실패");
     setSyncStatus(`저장 오류: ${error.message}`, true);
   }
-});
-
-clearButton.addEventListener("click", () => {
-  state = blankState();
-  saveState();
-  render();
 });
 
 printButton.addEventListener("click", () => {

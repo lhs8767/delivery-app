@@ -59,11 +59,11 @@ textarea {
 
 .control-card {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
   align-items: center;
-  padding: 14px;
-  margin-bottom: 12px;
+  padding: 9px 10px;
+  margin-bottom: 10px;
 }
 
 .control-card strong,
@@ -90,6 +90,8 @@ textarea {
   border: 1px solid #bad0d7;
   border-radius: 9px;
   background: #f6fafb;
+  justify-self: end;
+  width: min(190px, 100%);
 }
 
 .segmented label {
@@ -106,7 +108,7 @@ textarea {
 .type-grid span {
   display: grid;
   place-items: center;
-  min-height: 38px;
+  min-height: 32px;
   border-radius: 7px;
   color: #40565f;
   font-size: 14px;
@@ -207,7 +209,7 @@ textarea:focus {
   bottom: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr;
+  grid-template-columns: 1fr 1fr;
   gap: 7px;
   margin: 12px -12px 0;
   padding: 10px 12px 12px;
@@ -454,7 +456,7 @@ textarea:focus {
   }
 
   .control-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
   }
 
   .segmented label {
