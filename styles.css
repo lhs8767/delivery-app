@@ -128,8 +128,8 @@ textarea {
 
 .waybill-card {
   display: grid;
-  gap: 13px;
-  padding: 16px;
+  gap: 11px;
+  padding: 14px;
 }
 
 .waybill-card[hidden] {
@@ -174,11 +174,24 @@ textarea {
   grid-template-columns: 1fr 1fr;
 }
 
+.field-grid {
+  display: grid;
+  gap: 9px;
+}
+
+.field-grid.compact {
+  grid-template-columns: 1fr 1fr;
+}
+
+.field-grid .wide {
+  grid-column: 1 / -1;
+}
+
 label {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   color: var(--ink);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -186,15 +199,15 @@ input,
 textarea {
   width: 100%;
   border: 1px solid #bfd0d7;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 7px;
+  padding: 9px 10px;
   background: #fbfdfe;
   color: #111827;
   outline: none;
 }
 
 textarea {
-  min-height: 92px;
+  min-height: 78px;
   resize: vertical;
 }
 
@@ -465,10 +478,6 @@ textarea:focus {
 
   .field-row.two {
     grid-template-columns: 1fr;
-  }
-
-  .type-grid {
-    grid-template-columns: 1fr 1fr;
   }
 
   .saved-item {
