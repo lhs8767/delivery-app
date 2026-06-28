@@ -3,133 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>창고입고 송장</title>
+  <title>배송기사 반품송장</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="page">
-    <h1>창고입고 송장 작성</h1>
+  <main class="app-shell">
+    <header class="app-header">
+      <p>배송기사용 모바일 작성</p>
+      <h1>반품송장</h1>
+    </header>
 
-    <section class="paper" aria-label="송장 작성지">
-      <article class="slip" data-slip="1">
-        <div class="slip-head">
-          <div class="title">창고입고 송장</div>
-          <div class="checks">
-            <label><input type="radio" name="type" value="교환" checked><span class="check-box"></span><b>교환</b></label>
-            <label><input type="radio" name="type" value="AS"><span class="check-box"></span><b>AS</b></label>
-            <label><input type="radio" name="type" value="반품"><span class="check-box"></span><b>반품</b></label>
-            <label><input type="radio" name="type" value="오출고"><span class="check-box"></span><b>오출고</b></label>
-          </div>
-        </div>
-
-        <table class="invoice-table">
-          <tbody>
-            <tr>
-              <th>회수 기사</th>
-              <td><input data-slip-field="slip1.driver" autocomplete="name"></td>
-              <th>입고 날짜</th>
-              <td><input data-slip-field="slip1.receivedDate" type="date"></td>
-            </tr>
-            <tr>
-              <th>고객명</th>
-              <td><input data-slip-field="slip1.customer"></td>
-              <th>고객 연락처</th>
-              <td><input data-slip-field="slip1.phone" inputmode="tel"></td>
-            </tr>
-            <tr>
-              <th>고객 주소</th>
-              <td colspan="3"><input data-slip-field="slip1.address"></td>
-            </tr>
-            <tr>
-              <th>제품명</th>
-              <td colspan="3"><input data-slip-field="slip1.product"></td>
-            </tr>
-            <tr class="memo-row">
-              <th>회수<br>증상</th>
-              <td colspan="3"><textarea data-slip-field="slip1.symptom"></textarea></td>
-            </tr>
-            <tr class="memo-row">
-              <th>기사님<br>의견</th>
-              <td colspan="3"><textarea data-slip-field="slip1.opinion"></textarea></td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
-
-      <div class="cut-line" data-cut-line><span>절취선</span></div>
-
-      <article class="slip" data-slip="2">
-        <div class="slip-head">
-          <div class="title">창고입고 송장</div>
-          <div class="checks">
-            <label><input type="radio" name="typeMirror" value="교환" checked><span class="check-box"></span><b>교환</b></label>
-            <label><input type="radio" name="typeMirror" value="AS"><span class="check-box"></span><b>AS</b></label>
-            <label><input type="radio" name="typeMirror" value="반품"><span class="check-box"></span><b>반품</b></label>
-            <label><input type="radio" name="typeMirror" value="오출고"><span class="check-box"></span><b>오출고</b></label>
-          </div>
-        </div>
-
-        <table class="invoice-table">
-          <tbody>
-            <tr>
-              <th>회수 기사</th>
-              <td><input data-slip-field="slip2.driver" autocomplete="name"></td>
-              <th>입고 날짜</th>
-              <td><input data-slip-field="slip2.receivedDate" type="date"></td>
-            </tr>
-            <tr>
-              <th>고객명</th>
-              <td><input data-slip-field="slip2.customer"></td>
-              <th>고객 연락처</th>
-              <td><input data-slip-field="slip2.phone" inputmode="tel"></td>
-            </tr>
-            <tr>
-              <th>고객 주소</th>
-              <td colspan="3"><input data-slip-field="slip2.address"></td>
-            </tr>
-            <tr>
-              <th>제품명</th>
-              <td colspan="3"><input data-slip-field="slip2.product"></td>
-            </tr>
-            <tr class="memo-row">
-              <th>회수<br>증상</th>
-              <td colspan="3"><textarea data-slip-field="slip2.symptom"></textarea></td>
-            </tr>
-            <tr class="memo-row">
-              <th>기사님<br>의견</th>
-              <td colspan="3"><textarea data-slip-field="slip2.opinion"></textarea></td>
-            </tr>
-          </tbody>
-        </table>
-      </article>
+    <section class="control-card">
+      <div>
+        <strong>A4 출력 수량</strong>
+        <small>종이 한 장에 송장 1개 또는 2개를 출력합니다.</small>
+      </div>
+      <fieldset class="segmented" aria-label="출력 수량">
+        <label><input type="radio" name="printCount" value="1"><span>1장</span></label>
+        <label><input type="radio" name="printCount" value="2" checked><span>2장</span></label>
+      </fieldset>
     </section>
 
-    <section class="bottom-tools">
-      <fieldset class="print-count" aria-label="A4 출력 수량">
-        <label><input type="radio" name="printCount" value="1"><span>1장 출력</span></label>
-        <label><input type="radio" name="printCount" value="2" checked><span>2장 출력</span></label>
-      </fieldset>
-      <button id="clearButton" type="button">삭제</button>
+    <form class="entry-form" id="waybillForm">
+      <section class="waybill-card" data-slip-editor="slip1">
+        <div class="card-title">
+          <span>1번 반품송장</span>
+          <small>필수 정보부터 빠르게 입력하세요.</small>
+        </div>
+        <fieldset class="type-grid">
+          <legend>구분</legend>
+          <label><input type="radio" data-slip-type="slip1" name="slip1Type" value="교환" checked><span>교환</span></label>
+          <label><input type="radio" data-slip-type="slip1" name="slip1Type" value="AS"><span>AS</span></label>
+          <label><input type="radio" data-slip-type="slip1" name="slip1Type" value="반품"><span>반품</span></label>
+          <label><input type="radio" data-slip-type="slip1" name="slip1Type" value="오출고"><span>오출고</span></label>
+        </fieldset>
+        <div class="field-row two">
+          <label>회수 기사<input data-slip-field="slip1.driver" autocomplete="name"></label>
+          <label>입고 날짜<input data-slip-field="slip1.receivedDate" type="date"></label>
+        </div>
+        <div class="field-row two">
+          <label>고객명<input data-slip-field="slip1.customer"></label>
+          <label>고객 연락처<input data-slip-field="slip1.phone" inputmode="tel"></label>
+        </div>
+        <label>고객 주소<input data-slip-field="slip1.address"></label>
+        <label>제품명<input data-slip-field="slip1.product"></label>
+        <label>회수 증상<textarea data-slip-field="slip1.symptom" rows="3"></textarea></label>
+        <label>기사님 의견<textarea data-slip-field="slip1.opinion" rows="3"></textarea></label>
+      </section>
+
+      <section class="waybill-card" data-slip-editor="slip2">
+        <div class="card-title">
+          <span>2번 반품송장</span>
+          <small>하루에 두 건 회수할 때 입력합니다.</small>
+        </div>
+        <fieldset class="type-grid">
+          <legend>구분</legend>
+          <label><input type="radio" data-slip-type="slip2" name="slip2Type" value="교환" checked><span>교환</span></label>
+          <label><input type="radio" data-slip-type="slip2" name="slip2Type" value="AS"><span>AS</span></label>
+          <label><input type="radio" data-slip-type="slip2" name="slip2Type" value="반품"><span>반품</span></label>
+          <label><input type="radio" data-slip-type="slip2" name="slip2Type" value="오출고"><span>오출고</span></label>
+        </fieldset>
+        <div class="field-row two">
+          <label>회수 기사<input data-slip-field="slip2.driver" autocomplete="name"></label>
+          <label>입고 날짜<input data-slip-field="slip2.receivedDate" type="date"></label>
+        </div>
+        <div class="field-row two">
+          <label>고객명<input data-slip-field="slip2.customer"></label>
+          <label>고객 연락처<input data-slip-field="slip2.phone" inputmode="tel"></label>
+        </div>
+        <label>고객 주소<input data-slip-field="slip2.address"></label>
+        <label>제품명<input data-slip-field="slip2.product"></label>
+        <label>회수 증상<textarea data-slip-field="slip2.symptom" rows="3"></textarea></label>
+        <label>기사님 의견<textarea data-slip-field="slip2.opinion" rows="3"></textarea></label>
+      </section>
+    </form>
+
+    <section class="bottom-actions">
+      <button id="clearButton" type="button">초기화</button>
       <button id="saveButton" type="button">저장</button>
       <button id="printButton" type="button">인쇄</button>
     </section>
 
-    <section class="saved-panel" aria-label="저장된 입고송장">
+    <section class="saved-panel" aria-label="저장된 반품송장">
       <div class="saved-head">
-        <h2>저장된 입고송장</h2>
+        <h2>저장된 반품송장</h2>
         <span id="saveStatus" aria-live="polite"></span>
       </div>
       <details class="sync-settings">
         <summary>공유 저장 설정</summary>
         <div class="sync-grid">
-          <label>
-            Supabase URL
-            <input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co">
-          </label>
-          <label>
-            Supabase anon key
-            <input id="supabaseKey" type="password" placeholder="anon public key">
-          </label>
+          <label>Supabase URL<input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
+          <label>Supabase anon key<input id="supabaseKey" type="password" placeholder="anon public key"></label>
           <button id="connectSupabaseButton" type="button">연결 저장</button>
           <button id="disconnectSupabaseButton" type="button">연결 해제</button>
         </div>
@@ -138,6 +102,54 @@
       <div id="savedList" class="saved-list"></div>
     </section>
   </main>
+
+  <section class="print-sheet" aria-label="A4 인쇄용 반품송장">
+    <article class="print-slip" data-slip-print="slip1">
+      <div class="print-head">
+        <h2>배송기사 반품송장</h2>
+        <div class="print-types">
+          <span data-type-box="slip1.교환"></span><b>교환</b>
+          <span data-type-box="slip1.AS"></span><b>AS</b>
+          <span data-type-box="slip1.반품"></span><b>반품</b>
+          <span data-type-box="slip1.오출고"></span><b>오출고</b>
+        </div>
+      </div>
+      <table class="print-table">
+        <tbody>
+          <tr><th>회수 기사</th><td data-print-value="slip1.driver"></td><th>입고 날짜</th><td data-print-value="slip1.receivedDate"></td></tr>
+          <tr><th>고객명</th><td data-print-value="slip1.customer"></td><th>고객 연락처</th><td data-print-value="slip1.phone"></td></tr>
+          <tr><th>고객 주소</th><td colspan="3" data-print-value="slip1.address"></td></tr>
+          <tr><th>제품명</th><td colspan="3" data-print-value="slip1.product"></td></tr>
+          <tr class="tall"><th>회수<br>증상</th><td colspan="3" data-print-value="slip1.symptom"></td></tr>
+          <tr class="tall"><th>기사님<br>의견</th><td colspan="3" data-print-value="slip1.opinion"></td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <div class="cut-line" data-cut-line><span>절취선</span></div>
+
+    <article class="print-slip" data-slip-print="slip2">
+      <div class="print-head">
+        <h2>배송기사 반품송장</h2>
+        <div class="print-types">
+          <span data-type-box="slip2.교환"></span><b>교환</b>
+          <span data-type-box="slip2.AS"></span><b>AS</b>
+          <span data-type-box="slip2.반품"></span><b>반품</b>
+          <span data-type-box="slip2.오출고"></span><b>오출고</b>
+        </div>
+      </div>
+      <table class="print-table">
+        <tbody>
+          <tr><th>회수 기사</th><td data-print-value="slip2.driver"></td><th>입고 날짜</th><td data-print-value="slip2.receivedDate"></td></tr>
+          <tr><th>고객명</th><td data-print-value="slip2.customer"></td><th>고객 연락처</th><td data-print-value="slip2.phone"></td></tr>
+          <tr><th>고객 주소</th><td colspan="3" data-print-value="slip2.address"></td></tr>
+          <tr><th>제품명</th><td colspan="3" data-print-value="slip2.product"></td></tr>
+          <tr class="tall"><th>회수<br>증상</th><td colspan="3" data-print-value="slip2.symptom"></td></tr>
+          <tr class="tall"><th>기사님<br>의견</th><td colspan="3" data-print-value="slip2.opinion"></td></tr>
+        </tbody>
+      </table>
+    </article>
+  </section>
 
   <script src="./app.js"></script>
 </body>
