@@ -7,6 +7,7 @@ const SUPABASE_TABLE = "warehouse_waybills";
 const fieldNodes = [...document.querySelectorAll("[data-slip-field]")];
 const printButton = document.getElementById("printButton");
 const saveButton = document.getElementById("saveButton");
+const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
 const syncStatus = document.getElementById("syncStatus");
@@ -426,16 +427,22 @@ saveButton.addEventListener("click", async () => {
   saveState();
   try {
     await createSavedItem({ ...state });
-    state = blankState();
     saveState();
     render();
-    setSaveStatus("저장하고 새 반품송장을 열었습니다");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSaveStatus("저장했습니다. 바로 인쇄할 수 있습니다");
     await renderSavedItems();
   } catch (error) {
     setSaveStatus("저장 실패");
     setSyncStatus(`저장 오류: ${error.message}`, true);
   }
+});
+
+clearButton.addEventListener("click", () => {
+  state = blankState();
+  saveState();
+  render();
+  setSaveStatus("새 반품송장을 열었습니다");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 printButton.addEventListener("click", () => {
