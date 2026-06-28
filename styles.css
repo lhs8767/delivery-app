@@ -308,42 +308,6 @@ textarea:focus {
   padding: 0 10px 10px;
 }
 
-.driver-lookup {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfdfe;
-}
-
-.driver-lookup label {
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.lookup-row {
-  display: grid;
-  grid-template-columns: 1fr 86px;
-  gap: 7px;
-  margin-top: 6px;
-}
-
-.lookup-row input {
-  min-height: 38px;
-  padding: 0 10px;
-}
-
-.lookup-row button {
-  min-height: 38px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .saved-list {
   display: grid;
   gap: 8px;

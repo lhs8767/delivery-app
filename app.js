@@ -11,14 +11,13 @@ const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
 const syncStatus = document.getElementById("syncStatus");
-const driverLookup = document.getElementById("driverLookup");
-const loadByDriverButton = document.getElementById("loadByDriverButton");
 const supabaseUrlInput = document.getElementById("supabaseUrl");
 const supabaseKeyInput = document.getElementById("supabaseKey");
 const connectSupabaseButton = document.getElementById("connectSupabaseButton");
 const disconnectSupabaseButton = document.getElementById("disconnectSupabaseButton");
 const printCountInputs = [...document.querySelectorAll('input[name="printCount"]')];
 const typeInputs = [...document.querySelectorAll("[data-slip-type]")];
+let savedItemsCache = [];
 
 function blankSlip() {
   return {
@@ -219,6 +218,10 @@ function getSavedDriver(data) {
   return normalized.slip1.driver || normalized.slip2.driver || "";
 }
 
+function getCurrentDriverName() {
+  return (state.slip1.driver || state.slip2.driver || "").trim();
+}
+
 function loadSavedItem(item) {
   state = { ...blankState(false), ...migrateOldState(item.data), printCount: state.printCount };
   saveState();
@@ -229,16 +232,22 @@ function loadSavedItem(item) {
 
 function drawSavedItems(items) {
   savedList.innerHTML = "";
+  const currentDriver = getCurrentDriverName();
+  const visibleItems = currentDriver
+    ? items.filter((item) => getSavedDriver(item.data).trim() === currentDriver)
+    : items;
 
-  if (!items.length) {
+  if (!visibleItems.length) {
     const empty = document.createElement("p");
     empty.className = "saved-empty";
-    empty.textContent = "저장된 반품송장이 없습니다.";
+    empty.textContent = currentDriver
+      ? `${currentDriver} 기사님으로 저장된 반품송장이 없습니다.`
+      : "저장된 반품송장이 없습니다.";
     savedList.append(empty);
     return;
   }
 
-  items.forEach((item) => {
+  visibleItems.forEach((item) => {
     const row = document.createElement("div");
     row.className = "saved-item";
 
@@ -279,16 +288,15 @@ function drawSavedItems(items) {
 }
 
 async function renderSavedItems() {
-  let items = [];
   try {
-    items = await readSavedItems();
+    savedItemsCache = await readSavedItems();
     setSyncStatus(getSupabaseConfig() ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
   } catch (error) {
     setSyncStatus(`공유 저장소 오류: ${error.message}`, true);
-    items = readLocalSavedItems();
+    savedItemsCache = readLocalSavedItems();
   }
 
-  drawSavedItems(items);
+  drawSavedItems(savedItemsCache);
 }
 
 function resizeTextarea(node) {
@@ -391,6 +399,7 @@ fieldNodes.forEach((node) => {
     state[slip][field] = node.value;
     resizeTextarea(node);
     renderPrintSheet();
+    if (field === "driver") drawSavedItems(savedItemsCache);
     saveState();
   });
 
@@ -437,27 +446,6 @@ disconnectSupabaseButton.addEventListener("click", async () => {
   renderSupabaseConfig();
   await renderSavedItems();
   setSaveStatus("공유 저장 연결 해제");
-});
-
-loadByDriverButton.addEventListener("click", async () => {
-  const name = driverLookup.value.trim();
-  if (!name) {
-    setSaveStatus("기사님 이름을 입력해 주세요");
-    return;
-  }
-
-  try {
-    const items = await readSavedItems();
-    const found = items.find((item) => getSavedDriver(item.data).trim() === name);
-    if (!found) {
-      setSaveStatus(`${name} 기사님 저장 내역이 없습니다`);
-      return;
-    }
-    loadSavedItem(found);
-  } catch (error) {
-    setSaveStatus("불러오기 실패");
-    setSyncStatus(`불러오기 오류: ${error.message}`, true);
-  }
 });
 
 saveButton.addEventListener("click", async () => {
