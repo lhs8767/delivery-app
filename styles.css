@@ -60,17 +60,18 @@ textarea {
 .control-card {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  padding: 9px 10px;
-  margin-bottom: 10px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  min-height: 46px;
 }
 
 .control-card strong,
 .card-title span {
   display: block;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
 }
 
@@ -91,7 +92,7 @@ textarea {
   border-radius: 9px;
   background: #f6fafb;
   justify-self: end;
-  width: min(190px, 100%);
+  width: min(160px, 100%);
 }
 
 .segmented label {
@@ -108,10 +109,10 @@ textarea {
 .type-grid span {
   display: grid;
   place-items: center;
-  min-height: 32px;
-  border-radius: 7px;
+  min-height: 28px;
+  border-radius: 6px;
   color: #40565f;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
 }
 
