@@ -441,7 +441,26 @@ printButton.addEventListener("click", () => {
   resizeAllTextareas();
   renderPrintSheet();
   saveState();
+  if (typeof window.print !== "function") {
+    window.alert("이 브라우저에서는 인쇄 기능을 지원하지 않습니다. Chrome 또는 Safari에서 열어주세요.");
+    return;
+  }
+
+  let printStarted = false;
+  const markPrinted = () => {
+    printStarted = true;
+    window.removeEventListener("afterprint", markPrinted);
+  };
+  window.addEventListener("afterprint", markPrinted);
   window.print();
+
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    window.setTimeout(() => {
+      if (!printStarted) {
+        window.alert("인쇄창이 뜨지 않으면 카카오톡/네이버 앱 안이 아니라 Chrome 또는 Safari에서 링크를 열고 다시 인쇄해 주세요.");
+      }
+    }, 1200);
+  }
 });
 
 loadState();
