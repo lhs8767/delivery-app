@@ -3,6 +3,8 @@ const SAVED_KEY = "bonie-return-waybill-saved-list-v3";
 const SUPABASE_CONFIG_KEY = "bonie-waybill-supabase-config";
 const DEFAULT_DRIVER_KEY = "bonie-return-waybill-default-driver";
 const SUPABASE_TABLE = "warehouse_waybills";
+const DEFAULT_SUPABASE_URL = "https://qpuhdedacctkpxfflsyd.supabase.co";
+const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdWhkZWRhY2N0a3B4ZmZsc3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NzAxMzYsImV4cCI6MjA5ODI0NjEzNn0.PqTVU5UqVMvVWhRZgllsHELo4mnvU_IQrnEyijBJ4gs";
 
 const fieldNodes = [...document.querySelectorAll("[data-slip-field]")];
 const printButton = document.getElementById("printButton");
@@ -99,10 +101,12 @@ function blankState(keepPrintCount = true) {
 function getSupabaseConfig() {
   try {
     const config = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null");
-    if (!config?.url || !config?.key) return null;
-    return { url: config.url.replace(/\/$/, ""), key: config.key };
+    const url = config?.url || DEFAULT_SUPABASE_URL;
+    const key = config?.key || DEFAULT_SUPABASE_KEY;
+    if (!url || !key) return null;
+    return { url: url.replace(/\/$/, ""), key };
   } catch {
-    return null;
+    return { url: DEFAULT_SUPABASE_URL, key: DEFAULT_SUPABASE_KEY };
   }
 }
 
@@ -388,8 +392,8 @@ function render() {
 
 function renderSupabaseConfig() {
   const config = getSupabaseConfig();
-  supabaseUrlInput.value = config?.url || "";
-  supabaseKeyInput.value = config?.key || "";
+  supabaseUrlInput.value = config?.url || DEFAULT_SUPABASE_URL;
+  supabaseKeyInput.value = config?.key || DEFAULT_SUPABASE_KEY;
   setSyncStatus(config ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
 }
 
