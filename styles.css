@@ -230,7 +230,6 @@ textarea:focus {
 }
 
 .bottom-actions button,
-.sync-grid button,
 .saved-item button {
   min-height: 42px;
   border: 1px solid #bfd0d7;
@@ -240,8 +239,7 @@ textarea:focus {
   font-weight: 900;
 }
 
-#printButton,
-#connectSupabaseButton {
+#printButton {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;
@@ -272,40 +270,10 @@ textarea:focus {
   font-weight: 900;
 }
 
-.sync-settings {
-  margin-bottom: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfdfe;
-}
-
-.sync-settings summary {
-  padding: 10px;
-  cursor: pointer;
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.sync-grid {
-  display: grid;
-  gap: 8px;
-  padding: 0 10px 10px;
-}
-
-.sync-grid label {
-  font-size: 12px;
-}
-
-.sync-status,
 .saved-empty {
   margin: 0;
   color: var(--muted);
   font-size: 13px;
-}
-
-.sync-status {
-  padding: 0 10px 10px;
 }
 
 .saved-list {

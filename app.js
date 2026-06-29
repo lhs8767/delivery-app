@@ -12,11 +12,6 @@ const saveButton = document.getElementById("saveButton");
 const clearButton = document.getElementById("clearButton");
 const savedList = document.getElementById("savedList");
 const saveStatus = document.getElementById("saveStatus");
-const syncStatus = document.getElementById("syncStatus");
-const supabaseUrlInput = document.getElementById("supabaseUrl");
-const supabaseKeyInput = document.getElementById("supabaseKey");
-const connectSupabaseButton = document.getElementById("connectSupabaseButton");
-const disconnectSupabaseButton = document.getElementById("disconnectSupabaseButton");
 const printCountInputs = [...document.querySelectorAll('input[name="printCount"]')];
 const typeInputs = [...document.querySelectorAll("[data-slip-type]")];
 let savedItemsCache = [];
@@ -204,8 +199,7 @@ function setSaveStatus(text) {
 }
 
 function setSyncStatus(text, isError = false) {
-  syncStatus.textContent = text;
-  syncStatus.style.color = isError ? "#9f2525" : "#66737b";
+  if (isError) setSaveStatus(text);
 }
 
 function getSavedTitle(data) {
@@ -390,13 +384,6 @@ function render() {
   renderPrintSheet();
 }
 
-function renderSupabaseConfig() {
-  const config = getSupabaseConfig();
-  supabaseUrlInput.value = config?.url || DEFAULT_SUPABASE_URL;
-  supabaseKeyInput.value = config?.key || DEFAULT_SUPABASE_KEY;
-  setSyncStatus(config ? "Supabase 공유 저장소에 연결되어 있습니다." : "설정 전에는 이 기기에만 저장됩니다.");
-}
-
 fieldNodes.forEach((node) => {
   node.addEventListener("input", () => {
     const [slip, field] = node.dataset.slipField.split(".");
@@ -426,30 +413,6 @@ printCountInputs.forEach((node) => {
     setSlipVisibility();
     saveState();
   });
-});
-
-connectSupabaseButton.addEventListener("click", async () => {
-  const url = supabaseUrlInput.value.trim();
-  const key = supabaseKeyInput.value.trim();
-  if (!url || !key) {
-    setSyncStatus("Supabase URL과 anon key를 모두 입력해 주세요.", true);
-    return;
-  }
-
-  setSupabaseConfig({ url, key });
-  try {
-    await renderSavedItems();
-    setSaveStatus("공유 저장 연결 완료");
-  } catch (error) {
-    setSyncStatus(`연결 오류: ${error.message}`, true);
-  }
-});
-
-disconnectSupabaseButton.addEventListener("click", async () => {
-  clearSupabaseConfig();
-  renderSupabaseConfig();
-  await renderSavedItems();
-  setSaveStatus("공유 저장 연결 해제");
 });
 
 saveButton.addEventListener("click", async () => {
@@ -482,7 +445,6 @@ printButton.addEventListener("click", () => {
 });
 
 loadState();
-renderSupabaseConfig();
 render();
 renderSavedItems();
 window.addEventListener("beforeprint", renderPrintSheet);
