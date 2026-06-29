@@ -9,17 +9,18 @@
 <body>
   <main class="app-shell">
     <header class="app-header">
-      <p>배송기사용 모바일 작성</p>
-      <h1>반품송장</h1>
+      <div>
+        <p>배송기사용 모바일 작성</p>
+        <h1>반품송장</h1>
+      </div>
+      <div class="header-print">
+        <span>A4 출력</span>
+        <fieldset class="segmented" aria-label="출력 수량">
+          <label><input type="radio" name="printCount" value="1"><span>1장</span></label>
+          <label><input type="radio" name="printCount" value="2" checked><span>2장</span></label>
+        </fieldset>
+      </div>
     </header>
-
-    <section class="control-card">
-      <strong>A4 출력</strong>
-      <fieldset class="segmented" aria-label="출력 수량">
-        <label><input type="radio" name="printCount" value="1"><span>1장</span></label>
-        <label><input type="radio" name="printCount" value="2" checked><span>2장</span></label>
-      </fieldset>
-    </section>
 
     <form class="entry-form" id="waybillForm">
       <section class="waybill-card" data-slip-editor="slip1">

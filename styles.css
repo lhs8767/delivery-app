@@ -32,7 +32,11 @@ textarea {
 }
 
 .app-header {
-  padding: 8px 2px 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  padding: 8px 2px 10px;
 }
 
 .app-header p {
@@ -48,6 +52,18 @@ textarea {
   letter-spacing: 0;
 }
 
+.header-print {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.header-print > span {
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .control-card,
 .waybill-card,
 .saved-panel {
@@ -57,17 +73,6 @@ textarea {
   box-shadow: 0 12px 26px rgba(20, 39, 50, 0.08);
 }
 
-.control-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: center;
-  padding: 6px 8px;
-  margin-bottom: 8px;
-  min-height: 46px;
-}
-
-.control-card strong,
 .card-title span {
   display: block;
   color: var(--ink);
@@ -92,7 +97,7 @@ textarea {
   border-radius: 9px;
   background: #f6fafb;
   justify-self: end;
-  width: min(160px, 100%);
+  width: 124px;
 }
 
 .segmented label {
@@ -435,10 +440,6 @@ textarea:focus {
 @media (max-width: 520px) {
   .app-shell {
     padding-top: 14px;
-  }
-
-  .control-card {
-    grid-template-columns: auto 1fr;
   }
 
   .segmented label {
