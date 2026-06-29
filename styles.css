@@ -14,6 +14,13 @@
 
 * { box-sizing: border-box; }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background:
@@ -33,6 +40,7 @@ textarea {
   width: min(760px, 100%);
   margin: 0 auto;
   padding: 18px 12px 84px;
+  overflow-x: hidden;
 }
 
 .app-header {
@@ -168,7 +176,7 @@ textarea {
 
 .type-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 7px;
   margin: 0;
   padding: 0;
@@ -379,19 +387,19 @@ textarea:focus {
 
 .print-types {
   display: grid;
-  grid-template-columns: 9mm auto 9mm auto 9mm auto 9mm auto;
-  gap: 1.8mm;
+  grid-template-columns: 8mm auto 8mm auto 8mm auto 8mm auto 8mm auto;
+  gap: 1.2mm;
   align-items: center;
   color: var(--ink);
-  font-size: 5.2mm;
+  font-size: 4.2mm;
   font-weight: 900;
 }
 
 .print-types span {
   display: grid;
   place-items: center;
-  width: 8.5mm;
-  height: 8.5mm;
+  width: 7.5mm;
+  height: 7.5mm;
   border: 0.7mm solid #000;
   color: #000;
   font-size: 6.4mm;
@@ -476,6 +484,10 @@ textarea:focus {
 
   .saved-item {
     grid-template-columns: 1fr 70px 56px;
+  }
+
+  .type-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
